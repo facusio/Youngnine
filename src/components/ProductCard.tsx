@@ -1,14 +1,28 @@
 "use client";
 import { useState } from "react";
 import { redirectToWhatsApp } from "@/utils/whatsapp";
+import Image from "next/image";
+import { Product } from "@/types/product";
 
-export default function ProductCard({ product }: { product: any }) {
-  const [size, setSize] = useState(product.sizes[0]);
-  const [quantity, setQuantity] = useState(1);
+interface ProductCardProps {
+  product: Product;
+}
+
+export default function ProductCard({ product }: ProductCardProps) {
+  const [size, setSize] = useState<string>(product.sizes[0]);
+  const [quantity, setQuantity] = useState<number>(1);
 
   return (
     <div className="bg-white rounded-2xl p-4 shadow-card flex flex-col gap-3 hover:shadow-lg transition duration-200">
-      <img src={product.image_url} alt={product.name} className="rounded-xl object-cover h-64 w-full" />
+      <div className="relative w-full h-64 rounded-xl overflow-hidden">
+        <Image 
+          src={product.image_url} 
+          alt={product.name} 
+          width={500} 
+          height={500} 
+          className="object-cover" 
+        />
+      </div>
       <h3 className="text-lg font-semibold">{product.name}</h3>
       <p className="text-gray-500 text-sm">${product.price}</p>
 

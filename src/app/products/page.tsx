@@ -1,16 +1,10 @@
-import type { ReactElement } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ProductGrid from "@/components/ProductGrid";
 import { supabase } from "@/utils/supabase";
 
-type ProductsPageProps = {
-  searchParams?: {
-    gender?: string;
-  };
-};
+export default async function ProductsPage(props: any) {
+  const { searchParams } = props as { searchParams?: { gender?: string } };
 
-const ProductsPage = async ({
-  searchParams,
-}: ProductsPageProps): Promise<ReactElement> => {
   let query = supabase
     .from("products")
     .select("*")
@@ -23,6 +17,7 @@ const ProductsPage = async ({
   }
 
   const { data: products, error } = await query;
+
   if (error) {
     console.error("Error cargando productos:", error);
     return (
@@ -38,6 +33,4 @@ const ProductsPage = async ({
       <ProductGrid products={products ?? []} />
     </div>
   );
-};
-
-export default ProductsPage;
+}

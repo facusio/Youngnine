@@ -1,16 +1,15 @@
-// src/app/products/page.tsx
 import ProductGrid from "@/components/ProductGrid";
 import { supabase } from "@/utils/supabase";
-
-interface Props {
+export default async function ProductsPage({
+  searchParams,
+}: {
   searchParams: { gender?: string };
-}
+}) {
+    let query = supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-export default async function ProductsPage({ searchParams }: Props) {
-  // Base query
-  let query = supabase.from("products").select("*").order("created_at", { ascending: false });
-
-  // Aplica el filtro sólo si llegan esos parámetros
   const g = searchParams.gender;
   if (g === "Hombre") {
     query = query.in("gender", ["Hombre", "Unisex"]);

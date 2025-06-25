@@ -1,26 +1,35 @@
+import type { ReactElement } from "react";
 import ProductGrid from "@/components/ProductGrid";
 import { supabase } from "@/utils/supabase";
-export default async function ProductsPage({
+
+type ProductsPageProps = {
+  searchParams?: {
+    gender?: string;
+  };
+};
+
+const ProductsPage = async ({
   searchParams,
-}: {
-  searchParams: { gender?: string };
-}) {
-    let query = supabase
+}: ProductsPageProps): Promise<ReactElement> => {
+  let query = supabase
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });
 
-  const g = searchParams.gender;
-  if (g === "Hombre") {
+  if (searchParams?.gender === "Hombre") {
     query = query.in("gender", ["Hombre", "Unisex"]);
-  } else if (g === "Mujer") {
+  } else if (searchParams?.gender === "Mujer") {
     query = query.in("gender", ["Mujer", "Unisex"]);
   }
 
   const { data: products, error } = await query;
   if (error) {
     console.error("Error cargando productos:", error);
-    return <p className="p-4 text-red-600">No se pudieron cargar los productos.</p>;
+    return (
+      <p className="p-4 text-red-600">
+        No se pudieron cargar los productos. Revisa la consola para más detalles.
+      </p>
+    );
   }
 
   return (
@@ -29,4 +38,6 @@ export default async function ProductsPage({
       <ProductGrid products={products ?? []} />
     </div>
   );
-}
+};
+
+export default ProductsPage;

@@ -1,56 +1,54 @@
+// src/components/Navbar.tsx
 "use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logoWhite from "@/images/logoy9blanco.png";
 import logoBlack from "@/images/logoy9negro.png";
+import MobileMenu from "./MobileMenu";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Si no estamos en home o ya bajamos, fondo blanco y texto oscuro
-  const solid = !isHome || scrolled;
+  const headerBg = isHome
+    ? "bg-transparent"
+    : "bg-white/80 backdrop-blur-sm shadow-md";
 
   return (
-    <nav
-      className={`
-        fixed top-0 left-0 w-full h-20 z-20 flex items-center justify-between px-6 transition-all duration-300
-        ${solid ? "bg-white text-brand shadow-lg" : "bg-transparent text-white"}
-      `}
+    <header
+      className={`${headerBg} fixed inset-x-0 top-0 z-50 h-16 transition-colors duration-200`}
     >
-      <Link href="/" className="mt-7">
-        <Image src={solid ? logoBlack : logoWhite} alt="Y9 Logo" width={80} height={80} />
-      </Link>
+      <div className="max-w-screen-xl mx-auto h-full flex items-center justify-between px-4">
+        <Link href="/" className="flex-shrink-0 mt-5">
+          <Image
+            src={isHome ? logoWhite : logoBlack}
+            alt="Y9 Logo"
+            width={80}
+            height={80}
+          />
+        </Link>
 
-      <div className="flex items-center space-x-8 mt-7">
-        <Link
-          href="/"
-          className={`${solid ? "text-brand" : "text-white"} font-extrabold text-lg hover:text-accent`}
-        >
-          Inicio
-        </Link>
-        <Link
-          href="/products?gender=Hombre"
-          className={`${solid ? "text-brand" : "text-white"} font-extrabold text-lg hover:text-accent`}
-        >
-          Hombre
-        </Link>
-        <Link
-          href="/products?gender=Mujer"
-          className={`${solid ? "text-brand" : "text-white"} font-extrabold text-lg hover:text-accent`}
-        >
-          Mujer
-        </Link>
+        <nav className="hidden md:flex space-x-8">
+          {[
+            { label: "Inicio", href: "/" },
+            { label: "Hombre", href: "/products?gender=Hombre" },
+            { label: "Mujer", href: "/products?gender=Mujer" },
+          ].map(({ label, href }) => (
+            <Link
+              key={label}
+              href={href}
+              className={`font-bold text-lg ${
+                isHome ? "text-white" : "text-brand"
+              } hover:text-accent`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        <MobileMenu isHome={isHome} />
       </div>
-    </nav>
+    </header>
   );
 }

@@ -6,7 +6,7 @@ import heroImg from '@/images/fondogym.jpg'
 
 export default function Hero() {
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative w-full h-screen">
       <Image src={heroImg} alt="Fondo Gym" fill className="object-cover" />
       <div className="absolute inset-0 bg-black/50" />
 

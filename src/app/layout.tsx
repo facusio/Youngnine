@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body suppressHydrationWarning>
+      <body>
         <Navbar />
         <main>{children}</main>
         <Footer />
-      </body> 
+      </body>
     </html>
   );
 }

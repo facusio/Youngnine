@@ -1,7 +1,5 @@
-// src/components/Navbar.tsx
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import logoWhite from "@/images/logoy9blanco.png";
 import logoBlack from "@/images/logoy9negro.png";
@@ -21,11 +19,12 @@ export default function Navbar() {
     >
       <div className="max-w-screen-xl mx-auto h-full flex items-center justify-between px-4">
         <Link href="/" className="flex-shrink-0 mt-5">
-          <Image
-            src={isHome ? logoWhite : logoBlack}
+          <img
+            src={isHome ? logoWhite.src : logoBlack.src}
             alt="Y9 Logo"
             width={80}
             height={80}
+            className="object-contain"
           />
         </Link>
 

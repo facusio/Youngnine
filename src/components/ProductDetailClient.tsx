@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { Product } from "@/types/product";
 import QuantitySelector from "./QuantitySelector";
 import { redirectToWhatsApp } from "@/utils/whatsapp";
@@ -18,11 +17,10 @@ export default function ProductDetailClient({ product }: Props) {
   return (
     <main className="pt-28 px-6 lg:px-12 max-w-3xl mx-auto">
       <div className="relative w-full h-[400px] rounded-xl overflow-hidden">
-        <Image
+        <img
           src={product.image_url}
           alt={product.name}
-          fill
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       </div>
 

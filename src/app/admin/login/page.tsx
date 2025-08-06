@@ -1,24 +1,34 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import logoBlack from "@/images/logoy9negro.png";
 
 export default function AdminLogin() {
+  const supabase = createClientComponentClient();
+  const router = useRouter();
+  const params = useSearchParams();
+  const redirectTo = params?.get("from") ?? "/admin/dashboard";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    setError(null);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
-    if (res.ok) {
-      window.location.href = "/admin/dashboard";
+
+    if (error) {
+      setError("Email o contraseña incorrectos.");
     } else {
-      const { message } = await res.json();
-      setError(message || "Email o contraseña incorrectos");
+      router.push(redirectTo);
     }
   };
 
@@ -42,6 +52,7 @@ export default function AdminLogin() {
         {error && (
           <p className="mb-4 text-center text-red-600 font-medium">{error}</p>
         )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="sr-only">

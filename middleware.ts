@@ -1,34 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
-const PUBLIC_ADMIN = ["/admin/login", "/admin/logout"];
-const SECRET = process.env.JWT_SECRET!;
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (PUBLIC_ADMIN.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+  const url = req.nextUrl.clone();
+  const { pathname } = url;
+
+  if (!session && pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    url.pathname = "/admin/login";
+    url.searchParams.set("from", pathname);
+    return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/admin")) {
-    const token = req.cookies.get("admintoken")?.value;
-
-    if (!token) {
-      const loginUrl = new URL("/admin/login", req.url);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    try {
-      jwt.verify(token, SECRET);
-      return NextResponse.next();
-    } catch {
-      const loginUrl = new URL("/admin/login", req.url);
-      return NextResponse.redirect(loginUrl);
-    }
+  if (session && pathname === "/admin/login") {
+    url.pathname = "/admin/dashboard";
+    return NextResponse.redirect(url);
   }
-  return NextResponse.next();
+
+  return res;
 }
 
 export const config = {

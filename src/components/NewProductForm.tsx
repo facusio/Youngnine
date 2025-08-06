@@ -1,25 +1,32 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/utils/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-const AVAILABLE_SIZES = ["S", "M", "L", "XL"];
+interface NewProductFormProps {
+  onCreated: () => void;
+}
 
-export default function NewProductForm({ onCreated }: { onCreated: () => void }) {
+const AVAILABLE_SIZES = ["S", "M", "L", "XL"] as const;
+
+export default function NewProductForm({ onCreated }: NewProductFormProps) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [sizes, setSizes] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const supabase = createClientComponentClient();
 
   function toggleSize(size: string) {
-    setSizes(prev =>
-      prev.includes(size)
-        ? prev.filter(s => s !== size)
-        : [...prev, size]
+    setSizes((prev) =>
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
     );
   }
 
   const handleCreate = async () => {
+    if (!name || !price || !imageUrl || sizes.length === 0) {
+      setError("Completa todos los campos.");
+      return;
+    }
     const payload = {
       name,
       price: parseInt(price, 10),
@@ -27,68 +34,64 @@ export default function NewProductForm({ onCreated }: { onCreated: () => void })
       sizes,
     };
 
-    const { error } = await supabase.from("products").insert(payload).select();
-
-    if (error) {
-      console.error("Error al crear producto:", error.message, error.details);
-      setError(error.message);
+    const { error: supaError } = await supabase.from("products").insert(payload);
+    if (supaError) {
+      setError(supaError.message);
     } else {
-      setError("");
+      // limpiar form
       setName("");
       setPrice("");
       setImageUrl("");
       setSizes([]);
+      setError("");
       onCreated();
     }
   };
 
   return (
-    <div className="space-y-4 p-4 border rounded">
-      {error && <p className="text-red-600">{error}</p>}
+    <div className="mb-8 p-4 border rounded">
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+
       <input
         type="text"
         placeholder="Nombre"
         value={name}
-        onChange={e => setName(e.target.value)}
-        className="w-full border px-2 py-1 rounded"
+        onChange={(e) => setName(e.target.value)}
+        className="w-full mb-2 p-2 border rounded"
       />
       <input
         type="number"
         placeholder="Precio"
         value={price}
-        onChange={e => setPrice(e.target.value.replace(/^0+/, ""))}
-        className="w-full border px-2 py-1 rounded"
+        onChange={(e) => setPrice(e.target.value)}
+        className="w-full mb-2 p-2 border rounded"
       />
       <input
         type="text"
         placeholder="URL de la imagen"
         value={imageUrl}
-        onChange={e => setImageUrl(e.target.value)}
-        className="w-full border px-2 py-1 rounded"
+        onChange={(e) => setImageUrl(e.target.value)}
+        className="w-full mb-4 p-2 border rounded"
       />
-      <div>
-        <label className="block font-medium mb-1">Talles disponibles:</label>
-        <div className="flex gap-2">
-          {AVAILABLE_SIZES.map(size => (
-            <button
-              key={size}
-              type="button"
-              onClick={() => toggleSize(size)}
-              className={`px-3 py-1 border rounded-full ${
-                sizes.includes(size)
-                  ? "bg-brand text-white"
-                  : "bg-white text-brand"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
+
+      <div className="flex space-x-2 mb-4">
+        {AVAILABLE_SIZES.map((size) => (
+          <button
+            key={size}
+            type="button"
+            onClick={() => toggleSize(size)}
+            className={`px-3 py-1 border rounded-full ${
+              sizes.includes(size) ? "bg-black text-white" : ""
+            }`}
+          >
+            {size}
+          </button>
+        ))}
       </div>
+
       <button
         onClick={handleCreate}
         className="w-full bg-green-500 text-white py-2 rounded"
-        disabled={!name || !price || !imageUrl || sizes.length === 0}
       >
         Crear producto
       </button>
